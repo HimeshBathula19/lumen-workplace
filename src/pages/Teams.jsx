@@ -1,167 +1,394 @@
-import { useMemo, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import {
   Search,
+  Users,
+  Activity,
   ArrowUpDown,
   Filter,
   ShieldCheck,
   Lock,
   ChevronRight,
-  Users,
-  Activity,
-  Clock3,
 } from "lucide-react";
+
 import { useLumen } from "../context/LumenContext";
+import { getTeams } from "../lib/api";
 
 export default function Teams() {
   const {
-    teams = [],
-    loading,
-    error,
+    openTeam,
+    setSelectedTeam,
+    apiStatus,
   } = useLumen();
 
+  const [teams, setTeams] = useState([]);
   const [search, setSearch] = useState("");
-  const [severityFilter, setSeverityFilter] = useState("All");
-  const [sortBy, setSortBy] = useState("name");
-  const [sortAsc, setSortAsc] = useState(true);
-  const [selectedTeam, setSelectedTeam] = useState(null);
+  const [severityFilter, setSeverityFilter] =
+    useState("All");
+
+  const [sortBy, setSortBy] =
+    useState("name");
+
+  const [sortAsc, setSortAsc] =
+    useState(true);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadTeams() {
+      try {
+        setLoading(true);
+        setError("");
+
+        const data = await getTeams();
+
+        if (!mounted) return;
+
+        const rawTeams = Array.isArray(data)
+          ? data
+          : data?.teams ||
+            data?.data?.teams ||
+            data?.items ||
+            [];
+
+        const normalizedTeams =
+          rawTeams.map((team) => ({
+            ...team,
+
+            id:
+              team.id ??
+              team.team_id,
+
+            name:
+              team.name ??
+              team.team_name ??
+              "Unnamed Team",
+
+            department:
+              team.department ??
+              "Organization",
+
+            members: Number(
+              team.members ??
+              team.member_count ??
+              0
+            ),
+
+            communication: Number(
+              team.communication ?? 0
+            ),
+
+            meetings: Number(
+              team.meetings ?? 0
+            ),
+
+            recovery: Number(
+              team.recovery ?? 0
+            ),
+
+            workload: Number(
+              team.workload ?? 0
+            ),
+
+            after_hours: Number(
+              team.after_hours ??
+              team.afterHours ??
+              0
+            ),
+
+            signal:
+              team.signal ??
+              "No active signal",
+
+            severity:
+              team.severity ??
+              "Stable",
+
+            is_suppressed:
+              Boolean(
+                team.is_suppressed ??
+                team.isSuppressed ??
+                false
+              ),
+          }));
+
+        setTeams(normalizedTeams);
+      } catch (err) {
+        console.error(
+          "Teams API error:",
+          err
+        );
+
+        if (mounted) {
+          setError(
+            err?.message ||
+              "Unable to load teams."
+          );
+
+          setTeams([]);
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadTeams();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const filteredTeams = useMemo(() => {
-    const query = search.trim().toLowerCase();
+    let list = [...teams];
 
-    const filtered = teams.filter((team) => {
-      const matchesSearch =
-        !query ||
-        team.name?.toLowerCase().includes(query) ||
-        team.department?.toLowerCase().includes(query) ||
-        team.signal?.toLowerCase().includes(query);
+    const query = search
+      .toLowerCase()
+      .trim();
 
-      const matchesSeverity =
-        severityFilter === "All" ||
-        team.severity === severityFilter;
+    if (query) {
+      list = list.filter((team) => {
+        const name =
+          String(team.name)
+            .toLowerCase();
 
-      return matchesSearch && matchesSeverity;
-    });
+        const department =
+          String(team.department)
+            .toLowerCase();
 
-    return [...filtered].sort((a, b) => {
-      const aValue = a?.[sortBy];
-      const bValue = b?.[sortBy];
+        const signal =
+          String(team.signal)
+            .toLowerCase();
 
-      if (typeof aValue === "string") {
+        return (
+          name.includes(query) ||
+          department.includes(query) ||
+          signal.includes(query)
+        );
+      });
+    }
+
+    if (
+      severityFilter !== "All"
+    ) {
+      list = list.filter(
+        (team) =>
+          team.severity ===
+          severityFilter
+      );
+    }
+
+    list.sort((a, b) => {
+      const valueA = a[sortBy];
+      const valueB = b[sortBy];
+
+      if (
+        typeof valueA === "string" ||
+        typeof valueB === "string"
+      ) {
         return sortAsc
-          ? aValue.localeCompare(bValue)
-          : bValue.localeCompare(aValue);
+          ? String(valueA).localeCompare(
+              String(valueB)
+            )
+          : String(valueB).localeCompare(
+              String(valueA)
+            );
       }
 
+      const numberA =
+        Number(valueA) || 0;
+
+      const numberB =
+        Number(valueB) || 0;
+
       return sortAsc
-        ? Number(aValue ?? 0) - Number(bValue ?? 0)
-        : Number(bValue ?? 0) - Number(aValue ?? 0);
+        ? numberA - numberB
+        : numberB - numberA;
     });
-  }, [teams, search, severityFilter, sortBy, sortAsc]);
 
-  const totalMembers = teams.reduce(
-    (sum, team) => sum + Number(team.members || 0),
-    0
-  );
+    return list;
+  }, [
+    teams,
+    search,
+    severityFilter,
+    sortBy,
+    sortAsc,
+  ]);
 
-  const activeSignals = teams.filter(
-    (team) =>
-      team.severity &&
-      team.severity !== "Stable" &&
-      !team.is_suppressed
-  ).length;
+  const totalMembers =
+    teams.reduce(
+      (sum, team) =>
+        sum +
+        (Number(team.members) || 0),
+      0
+    );
 
-  const suppressedCount = teams.filter(
-    (team) => team.is_suppressed
-  ).length;
+  const activeSignals =
+    teams.filter(
+      (team) =>
+        team.severity !==
+          "Stable" &&
+        !team.is_suppressed
+    ).length;
 
-  const toggleSort = (field) => {
+  const suppressedCount =
+    teams.filter(
+      (team) =>
+        team.is_suppressed
+    ).length;
+
+  function handleTeamClick(
+    teamId
+  ) {
+    setSelectedTeam(teamId);
+    openTeam(teamId);
+  }
+
+  function toggleSort(field) {
     if (sortBy === field) {
-      setSortAsc((current) => !current);
-    } else {
-      setSortBy(field);
-      setSortAsc(true);
+      setSortAsc(
+        (current) => !current
+      );
+      return;
     }
-  };
 
-  const connectionLabel = loading
-    ? "Syncing workspace"
-    : error
-      ? "Partial connection"
-      : "Live";
+    setSortBy(field);
+    setSortAsc(true);
+  }
 
   return (
-    <section className="teams-page" aria-label="Teams Intelligence Directory">
+    <section
+      className="teams-page"
+      aria-label="Teams Intelligence Directory"
+    >
       <div className="page-header">
         <div>
-          <div className="eyebrow">WORKSPACE</div>
+          <div className="eyebrow">
+            WORKSPACE
+          </div>
+
           <h1>Teams</h1>
+
           <p>
-            Investigate team-level conditions across communication,
-            meetings, workload, recovery, and after-hours activity.
+            Investigate team-level
+            conditions across
+            communication rhythms,
+            meeting load, workload,
+            recovery, and
+            after-hours activity.
           </p>
         </div>
 
         <div className="overview-status">
           <span
             className={`status-dot ${
-              loading
-                ? ""
-                : error
-                  ? "is-offline"
-                  : "is-live"
+              apiStatus === "live"
+                ? "is-live"
+                : "is-offline"
             }`}
           />
-          <span>{connectionLabel}</span>
+
+          <span>
+            {apiStatus === "live"
+              ? "Backend connected"
+              : "Connecting"}
+          </span>
         </div>
       </div>
 
       <div className="metric-grid">
         <div className="metric-card">
-          <span className="metric-label">Monitored Teams</span>
+          <span className="metric-label">
+            Monitored Teams
+          </span>
+
           <strong className="metric-value">
-            {loading ? "…" : teams.length}
+            {loading
+              ? "—"
+              : teams.length}
           </strong>
-          <span className="metric-meta">Aggregated organizational units</span>
+
+          <span className="metric-meta">
+            Aggregated units
+          </span>
         </div>
 
         <div className="metric-card">
-          <span className="metric-label">Total Headcount</span>
+          <span className="metric-label">
+            Total Headcount
+          </span>
+
           <strong className="metric-value">
-            {loading ? "…" : totalMembers}
+            {loading
+              ? "—"
+              : totalMembers}
           </strong>
-          <span className="metric-meta">No individual scoring</span>
+
+          <span className="metric-meta">
+            Zero individual
+            tracking
+          </span>
         </div>
 
         <div className="metric-card">
-          <span className="metric-label">Active Signals</span>
+          <span className="metric-label">
+            Active Signals
+          </span>
+
           <strong className="metric-value">
-            {loading ? "…" : activeSignals}
+            {loading
+              ? "—"
+              : activeSignals}
           </strong>
-          <span className="metric-meta">Requires human review</span>
+
+          <span className="metric-meta">
+            Warrants review
+          </span>
         </div>
 
         <div className="metric-card">
-          <span className="metric-label">Privacy State</span>
+          <span className="metric-label">
+            Privacy State
+          </span>
+
           <strong className="metric-value">
             {suppressedCount > 0
               ? `${suppressedCount} Suppressed`
               : "Protected"}
           </strong>
+
           <span className="metric-meta">
-            Server-enforced aggregation boundary
+            Server-side threshold
           </span>
         </div>
       </div>
 
-      <div className="overview-panel teams-directory">
+      <div className="overview-panel">
         <div className="table-controls-bar">
           <div className="teams-search">
             <Search size={16} />
+
             <input
               type="text"
+              placeholder="Search team, department, or signal..."
               value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search teams, departments, or signals"
+              onChange={(event) =>
+                setSearch(
+                  event.target.value
+                )
+              }
               aria-label="Search teams"
             />
           </div>
@@ -169,266 +396,247 @@ export default function Teams() {
           <div className="table-filters-group">
             <div className="filter-select-wrap">
               <Filter size={14} />
+
               <select
-                value={severityFilter}
-                onChange={(event) =>
-                  setSeverityFilter(event.target.value)
+                value={
+                  severityFilter
                 }
-                aria-label="Filter severity"
+                onChange={(event) =>
+                  setSeverityFilter(
+                    event.target.value
+                  )
+                }
               >
-                <option value="All">All severities</option>
-                <option value="Moderate">Moderate</option>
-                <option value="Watch">Watch</option>
-                <option value="Stable">Stable</option>
+                <option value="All">
+                  All Severities
+                </option>
+
+                <option value="Moderate">
+                  Moderate
+                </option>
+
+                <option value="Watch">
+                  Watch
+                </option>
+
+                <option value="Stable">
+                  Stable
+                </option>
               </select>
             </div>
 
             <div className="filter-select-wrap">
               <ArrowUpDown size={14} />
+
               <select
                 value={sortBy}
-                onChange={(event) => setSortBy(event.target.value)}
-                aria-label="Sort teams"
+                onChange={(event) =>
+                  setSortBy(
+                    event.target.value
+                  )
+                }
               >
-                <option value="name">Name</option>
-                <option value="members">Members</option>
-                <option value="communication">Communication</option>
-                <option value="meetings">Meeting load</option>
-                <option value="workload">Workload</option>
-                <option value="recovery">Recovery</option>
+                <option value="name">
+                  Sort by Name
+                </option>
+
+                <option value="members">
+                  Sort by Members
+                </option>
+
+                <option value="recovery">
+                  Sort by Recovery
+                </option>
+
+                <option value="meetings">
+                  Sort by Meeting Load
+                </option>
+
+                <option value="workload">
+                  Sort by Workload
+                </option>
               </select>
             </div>
 
             <button
               type="button"
-              className="row-action-btn"
-              onClick={() => setSortAsc((current) => !current)}
-              aria-label="Toggle sort direction"
-              title={sortAsc ? "Ascending" : "Descending"}
+              className="icon-button"
+              onClick={() =>
+                toggleSort(sortBy)
+              }
+              title="Reverse sort"
             >
-              <ArrowUpDown size={15} />
+              <ArrowUpDown
+                size={15}
+              />
             </button>
           </div>
         </div>
 
-        <div className="teams-table-wrap">
-          {loading ? (
-            <div className="table-empty-state">
-              <Activity size={20} />
-              <strong>Loading workspace telemetry</strong>
-              <span>
-                Synchronizing aggregated team conditions…
-              </span>
-            </div>
-          ) : filteredTeams.length === 0 ? (
-            <div className="table-empty-state">
-              <Search size={20} />
-              <strong>No matching teams</strong>
-              <span>
-                Adjust the search or severity filter.
-              </span>
-            </div>
-          ) : (
-            <table className="lumen-table">
-              <thead>
-                <tr>
-                  <th
-                    onClick={() => toggleSort("name")}
-                    className="sortable"
+        {error && (
+          <div
+            style={{
+              margin: "0 0 16px",
+              padding: "14px 16px",
+              borderRadius: "12px",
+              border:
+                "1px solid #fecdca",
+              background: "#fff5f5",
+              color: "#b42318",
+            }}
+          >
+            {error}
+          </div>
+        )}
+
+        {loading ? (
+          <div className="empty-state">
+            Loading teams...
+          </div>
+        ) : filteredTeams.length ===
+          0 ? (
+          <div className="empty-state">
+            <strong>
+              No teams found
+            </strong>
+
+            <p>
+              Try changing your
+              search or filters.
+            </p>
+          </div>
+        ) : (
+          <div className="team-list">
+            {filteredTeams.map(
+              (team) => (
+                <div
+                  className="team-row clickable"
+                  key={team.id}
+                  onClick={() =>
+                    handleTeamClick(
+                      team.id
+                    )
+                  }
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(
+                    event
+                  ) => {
+                    if (
+                      event.key ===
+                        "Enter" ||
+                      event.key ===
+                        " "
+                    ) {
+                      handleTeamClick(
+                        team.id
+                      );
+                    }
+                  }}
+                >
+                  <div className="team-identity">
+                    <div className="team-avatar">
+                      {String(
+                        team.name
+                      ).charAt(0)}
+                    </div>
+
+                    <div>
+                      <strong>
+                        {team.name}
+                      </strong>
+
+                      <span>
+                        {
+                          team.department
+                        }
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="team-snapshot-metrics">
+                    <div>
+                      <small>
+                        Recovery
+                      </small>
+
+                      <strong>
+                        {team.is_suppressed
+                          ? "—"
+                          : `${team.recovery}%`}
+                      </strong>
+                    </div>
+
+                    <div>
+                      <small>
+                        Workload
+                      </small>
+
+                      <strong>
+                        {team.is_suppressed
+                          ? "—"
+                          : `${team.workload}%`}
+                      </strong>
+                    </div>
+
+                    <div>
+                      <small>
+                        Headcount
+                      </small>
+
+                      <span>
+                        {team.members}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="team-signal">
+                    <span>
+                      {team.signal}
+                    </span>
+                  </div>
+
+                  <div
+                    className={`severity severity-${String(
+                      team.severity
+                    ).toLowerCase()}`}
                   >
-                    Team <ArrowUpDown size={12} />
-                  </th>
-                  <th>Department</th>
-                  <th
-                    onClick={() => toggleSort("members")}
-                    className="sortable"
-                  >
-                    Members <ArrowUpDown size={12} />
-                  </th>
-                  <th
-                    onClick={() => toggleSort("communication")}
-                    className="sortable"
-                  >
-                    Comm.
-                  </th>
-                  <th
-                    onClick={() => toggleSort("meetings")}
-                    className="sortable"
-                  >
-                    Meetings
-                  </th>
-                  <th
-                    onClick={() => toggleSort("workload")}
-                    className="sortable"
-                  >
-                    Workload
-                  </th>
-                  <th
-                    onClick={() => toggleSort("recovery")}
-                    className="sortable"
-                  >
-                    Recovery
-                  </th>
-                  <th>After-hours</th>
-                  <th>Signal</th>
-                  <th>Status</th>
-                  <th />
-                </tr>
-              </thead>
+                    {
+                      team.severity
+                    }
+                  </div>
 
-              <tbody>
-                {filteredTeams.map((team) => {
-                  const selected = selectedTeam?.id === team.id;
-
-                  return (
-                    <tr
-                      key={team.id}
-                      className={`team-table-row ${
-                        selected ? "is-selected" : ""
-                      } ${
-                        team.is_suppressed ? "is-suppressed" : ""
-                      }`}
-                      onClick={() => setSelectedTeam(team)}
-                    >
-                      <td className="team-cell-name">
-                        <span className="team-table-avatar">
-                          {team.name?.charAt(0)}
-                        </span>
-                        <strong>{team.name}</strong>
-                      </td>
-
-                      <td>{team.department}</td>
-
-                      <td>
-                        <span className="members-chip">
-                          {team.members}
-                        </span>
-                      </td>
-
-                      {team.is_suppressed ? (
-                        <td colSpan={5}>
-                          <span className="suppressed-badge">
-                            <Lock size={12} />
-                            Detailed telemetry suppressed
-                          </span>
-                        </td>
-                      ) : (
-                        <>
-                          <td>{team.communication}%</td>
-                          <td>{team.meetings}%</td>
-                          <td>{team.workload}%</td>
-                          <td>
-                            <strong
-                              className={
-                                Number(team.recovery) < 60
-                                  ? "stat-warning"
-                                  : "stat-normal"
-                              }
-                            >
-                              {team.recovery}%
-                            </strong>
-                          </td>
-                          <td>{team.after_hours}%</td>
-                        </>
-                      )}
-
-                      <td>
-                        <span className="signal-cell-text">
-                          {team.signal}
-                        </span>
-                      </td>
-
-                      <td>
-                        <span
-                          className={`severity severity-${(
-                            team.severity || ""
-                          ).toLowerCase()}`}
-                        >
-                          {team.severity}
-                        </span>
-                      </td>
-
-                      <td>
-                        <button
-                          type="button"
-                          className="row-action-btn"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            setSelectedTeam(team);
-                          }}
-                          aria-label={`Inspect ${team.name}`}
-                        >
-                          <ChevronRight size={16} />
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          )}
-        </div>
+                  <ChevronRight
+                    size={16}
+                    className="team-row-arrow"
+                  />
+                </div>
+              )
+            )}
+          </div>
+        )}
       </div>
-
-      {selectedTeam && (
-        <div className="overview-panel team-inspection">
-          <div className="team-inspection-header">
-            <div>
-              <div className="eyebrow">TEAM INSPECTION</div>
-              <h2>{selectedTeam.name}</h2>
-              <p>{selectedTeam.department}</p>
-            </div>
-
-            <button
-              type="button"
-              className="row-action-btn"
-              onClick={() => setSelectedTeam(null)}
-              aria-label="Close team inspection"
-            >
-              ×
-            </button>
-          </div>
-
-          <div className="team-inspection-grid">
-            <div>
-              <span>Communication</span>
-              <strong>{selectedTeam.communication}%</strong>
-            </div>
-            <div>
-              <span>Meeting load</span>
-              <strong>{selectedTeam.meetings}%</strong>
-            </div>
-            <div>
-              <span>Workload</span>
-              <strong>{selectedTeam.workload}%</strong>
-            </div>
-            <div>
-              <span>Recovery</span>
-              <strong>{selectedTeam.recovery}%</strong>
-            </div>
-            <div>
-              <span>After-hours</span>
-              <strong>{selectedTeam.after_hours}%</strong>
-            </div>
-            <div>
-              <span>Observed signal</span>
-              <strong>{selectedTeam.signal}</strong>
-            </div>
-          </div>
-        </div>
-      )}
 
       <div className="privacy-strip">
         <div className="privacy-strip-icon">
-          <ShieldCheck size={18} />
+          <ShieldCheck
+            size={20}
+          />
         </div>
 
         <div>
-          <strong>Privacy boundary enforced</strong>
+          <strong>
+            Privacy Boundary Active
+          </strong>
+
           <p>
-            LUMEN operates on aggregated team conditions. It does not
-            expose individual messages, individual burnout scores, or
-            employee rankings.
+            LUMEN operates on
+            aggregated team-level
+            signals. Raw message
+            content, individual
+            burnout scores, and
+            employee rankings are
+            excluded by architecture.
           </p>
         </div>
       </div>
