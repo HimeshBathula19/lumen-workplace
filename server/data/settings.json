@@ -1,0 +1,11 @@
+{
+  "workspace_name": "LUMEN Workspace",
+  "timezone": "Asia/Kolkata",
+  "minimum_team_size": 5,
+  "auto_refresh_interval": 10,
+  "causal_confidence_display": true,
+  "signal_alerts": true,
+  "weekly_reports": true,
+  "synthetic_demo_mode": true,
+  "team_aggregation": true
+}

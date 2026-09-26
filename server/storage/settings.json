@@ -1,0 +1,10 @@
+{
+  "workspaceName": "HImesh's Workspace",
+  "timezone": "America/New_York",
+  "signalAlerts": true,
+  "weeklyReports": true,
+  "syntheticMode": true,
+  "teamAggregation": true,
+  "minimumTeamSize": 5,
+  "autoRefreshSeconds": 10
+}

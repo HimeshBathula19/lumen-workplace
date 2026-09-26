@@ -1,0 +1,1751 @@
+/* =========================================================
+   LUMEN — CINEMATIC PRODUCT INTRO
+   Premium / minimal / continuous transformation
+   ========================================================= */
+
+.morph-intro {
+  --ink: #1d1d1f;
+  --muted: #85858a;
+  --soft: rgba(29, 29, 31, 0.08);
+  --line: rgba(29, 29, 31, 0.14);
+  --glass: rgba(255, 255, 255, 0.74);
+
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+
+  overflow: hidden;
+  isolation: isolate;
+
+  background:
+    radial-gradient(
+      ellipse at 50% 42%,
+      #ffffff 0%,
+      #fafafa 42%,
+      #f4f4f5 72%,
+      #ececee 100%
+    );
+
+  color: var(--ink);
+
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Display",
+    "SF Pro Text",
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+
+  animation:
+    morph-intro-in 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Atmospheric light */
+
+.morph-intro::before {
+  content: "";
+  position: absolute;
+  inset: -15%;
+
+  z-index: -3;
+
+  background:
+    radial-gradient(
+      circle at 50% 44%,
+      rgba(255, 255, 255, 0.94) 0%,
+      rgba(255, 255, 255, 0.4) 27%,
+      transparent 62%
+    );
+
+  filter: blur(25px);
+
+  pointer-events: none;
+}
+
+.morph-intro::after {
+  content: "";
+  position: absolute;
+  inset: -50%;
+
+  z-index: 200;
+
+  opacity: 0.045;
+
+  background-image:
+    radial-gradient(
+      rgba(0, 0, 0, 0.2) 0.35px,
+      transparent 0.55px
+    );
+
+  background-size: 5px 5px;
+
+  pointer-events: none;
+
+  animation:
+    morph-grain 13s linear infinite;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.morph-topbar {
+  position: absolute;
+
+  top: 28px;
+  right: 34px;
+  left: 34px;
+
+  z-index: 300;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.morph-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  color: var(--ink);
+
+  font-size: 13px;
+  font-weight: 650;
+
+  letter-spacing: -0.025em;
+}
+
+.morph-brand-mark {
+  width: 29px;
+  height: 29px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 9px;
+
+  background: var(--ink);
+  color: #fff;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  box-shadow:
+    0 5px 16px rgba(0, 0, 0, 0.08);
+}
+
+.morph-meta {
+  color: #9a9a9f;
+
+  font-size: 8px;
+  font-weight: 700;
+
+  letter-spacing: 0.11em;
+}
+
+/* =========================================================
+   STAGE
+   ========================================================= */
+
+.morph-stage {
+  position: absolute;
+
+  top: 40%;
+  left: 50%;
+
+  width: min(1120px, calc(100% - 80px));
+  height: 500px;
+
+  transform: translate(-50%, -50%);
+}
+
+.morph-stage > svg,
+.morph-stage > div {
+  pointer-events: none;
+}
+
+/* =========================================================
+   AMBIENT FIELD
+   ========================================================= */
+
+.morph-ambient {
+  position: absolute;
+  inset: 0;
+
+  opacity: 0.55;
+
+  pointer-events: none;
+}
+
+.morph-ambient span {
+  position: absolute;
+
+  width: 2px;
+  height: 2px;
+
+  border-radius: 50%;
+
+  background: rgba(29, 29, 31, 0.18);
+
+  animation:
+    ambient-float 4200ms ease-in-out infinite;
+}
+
+.morph-ambient span:nth-child(1) {
+  left: 21%;
+  top: 33%;
+}
+
+.morph-ambient span:nth-child(2) {
+  right: 22%;
+  top: 41%;
+
+  animation-delay: -1300ms;
+}
+
+.morph-ambient span:nth-child(3) {
+  left: 43%;
+  bottom: 20%;
+
+  animation-delay: -2600ms;
+}
+
+/* =========================================================
+   COMMON LAYER BEHAVIOR
+   ========================================================= */
+
+.morph-signals,
+.morph-protection,
+.morph-causal,
+.morph-intervention,
+.morph-final {
+  position: absolute;
+  inset: 0;
+
+  transition:
+    opacity 850ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1050ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 1050ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* =========================================================
+   OBSERVE
+   ========================================================= */
+
+.morph-signals {
+  opacity: 0;
+
+  transform:
+    scale(0.9)
+    translateY(10px);
+}
+
+.morph-intro[data-phase="observe"] .morph-signals {
+  opacity: 1;
+
+  transform:
+    scale(1)
+    translateY(0);
+}
+
+.morph-intro[data-phase="protect"] .morph-signals {
+  opacity: 0.27;
+
+  transform:
+    scale(0.91)
+    translateY(0);
+}
+
+.morph-intro[data-phase="understand"] .morph-signals {
+  opacity: 0.08;
+
+  transform:
+    scale(0.82);
+}
+
+.morph-intro[data-phase="intervention"] .morph-signals {
+  opacity: 0;
+}
+
+.morph-intro[data-phase="resolve"] .morph-signals {
+  opacity: 0;
+}
+
+/* Activity paths */
+
+.signal-streams path {
+  fill: none;
+
+  stroke: rgba(29, 29, 31, 0.14);
+
+  stroke-width: 1.05;
+
+  stroke-linecap: round;
+
+  stroke-dasharray: 1 13;
+
+  animation:
+    signal-flow 9s linear infinite;
+}
+
+.signal-streams path:nth-child(2) {
+  animation-duration: 10.5s;
+  animation-delay: -2s;
+}
+
+.signal-streams path:nth-child(3) {
+  animation-duration: 12s;
+  animation-delay: -4s;
+}
+
+.signal-streams path:nth-child(4) {
+  animation-duration: 8.8s;
+  animation-delay: -3s;
+}
+
+/* Signal dots */
+
+.signal-nodes circle {
+  fill: #303034;
+
+  opacity: 0;
+
+  transform-box: fill-box;
+  transform-origin: center;
+
+  animation:
+    signal-node-in
+    900ms
+    cubic-bezier(0.22, 1, 0.36, 1)
+    forwards,
+
+    signal-node-pulse
+    2600ms
+    1100ms
+    ease-in-out
+    infinite;
+}
+
+.signal-nodes circle:nth-child(1) {
+  animation-delay: 180ms;
+}
+
+.signal-nodes circle:nth-child(2) {
+  animation-delay: 320ms;
+}
+
+.signal-nodes circle:nth-child(3) {
+  animation-delay: 460ms;
+}
+
+.signal-nodes circle:nth-child(4) {
+  animation-delay: 600ms;
+}
+
+.signal-nodes circle:nth-child(5) {
+  animation-delay: 740ms;
+}
+
+.signal-nodes circle:nth-child(6) {
+  animation-delay: 880ms;
+}
+
+/* Focus rings */
+
+.signal-focus-ring {
+  fill: none;
+
+  stroke: rgba(0, 0, 0, 0.08);
+
+  stroke-width: 1;
+
+  transform-box: fill-box;
+  transform-origin: center;
+
+  animation:
+    focus-ring 3400ms
+    ease-in-out
+    infinite;
+}
+
+.signal-focus-ring.secondary {
+  animation-delay: -1000ms;
+  opacity: 0.55;
+}
+
+.signal-focus-core {
+  fill: rgba(255, 255, 255, 0.72);
+
+  stroke: rgba(0, 0, 0, 0.12);
+
+  stroke-width: 1;
+}
+
+/* =========================================================
+   PROTECT
+   ========================================================= */
+
+.morph-protection {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 28px;
+
+  opacity: 0;
+
+  transform:
+    scale(0.94);
+
+  filter: blur(2px);
+}
+
+.morph-intro[data-phase="protect"] .morph-protection,
+.morph-intro[data-phase="understand"] .morph-protection {
+  opacity: 1;
+
+  transform:
+    scale(1);
+
+  filter: blur(0);
+}
+
+.morph-intro[data-phase="understand"] .morph-protection {
+  opacity: 0.13;
+
+  transform:
+    scale(0.84);
+}
+
+.morph-intro[data-phase="intervention"] .morph-protection {
+  opacity: 0;
+}
+
+.morph-intro[data-phase="resolve"] .morph-protection {
+  opacity: 0;
+}
+
+/* Protection panels */
+
+.protection-panel {
+  position: relative;
+
+  width: 270px;
+  height: 158px;
+
+  padding: 21px;
+
+  border:
+    1px solid
+    rgba(0, 0, 0, 0.075);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.88),
+      rgba(248, 248, 249, 0.6)
+    );
+
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.045),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.protection-left {
+  border-radius: 18px 6px 6px 18px;
+
+  transform:
+    translateX(27px);
+
+  transition:
+    transform 900ms
+    cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.protection-right {
+  border-radius: 6px 18px 18px 6px;
+
+  transform:
+    translateX(-27px);
+
+  transition:
+    transform 900ms 80ms
+    cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.morph-intro[data-phase="protect"] .protection-left,
+.morph-intro[data-phase="protect"] .protection-right {
+  transform:
+    translateX(0);
+}
+
+.protection-panel > span {
+  color: #96969b;
+
+  font-size: 7px;
+  font-weight: 700;
+
+  letter-spacing: 0.11em;
+}
+
+.protection-panel small {
+  display: block;
+
+  margin-top: 18px;
+
+  color: #a1a1a6;
+
+  font-size: 8px;
+
+  line-height: 1.45;
+}
+
+.protection-lines,
+.aggregate-lines {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 9px;
+
+  margin-top: 20px;
+}
+
+.protection-lines i,
+.aggregate-lines i {
+  display: block;
+
+  height: 5px;
+
+  border-radius: 99px;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.13),
+      rgba(0, 0, 0, 0.025)
+    );
+}
+
+.protection-lines i:nth-child(2) {
+  width: 76%;
+}
+
+.protection-lines i:nth-child(3) {
+  width: 90%;
+}
+
+.protection-lines i:nth-child(4) {
+  width: 64%;
+}
+
+.protection-lines i:nth-child(5) {
+  width: 83%;
+}
+
+.aggregate-lines i:nth-child(1) {
+  width: 84%;
+}
+
+.aggregate-lines i:nth-child(2) {
+  width: 61%;
+}
+
+.aggregate-lines i:nth-child(3) {
+  width: 92%;
+}
+
+/* Privacy gate */
+
+.protection-gate {
+  position: relative;
+
+  z-index: 5;
+
+  width: 88px;
+  height: 245px;
+
+  display: grid;
+
+  place-items: center;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(247, 247, 249, 0),
+      rgba(247, 247, 249, 0.98) 38%,
+      rgba(247, 247, 249, 0.98) 62%,
+      rgba(247, 247, 249, 0)
+    );
+}
+
+.gate-line {
+  position: absolute;
+
+  left: 50%;
+
+  width: 1px;
+
+  transform: translateX(-50%);
+
+  background:
+    linear-gradient(
+      180deg,
+      transparent,
+      rgba(0, 0, 0, 0.18),
+      transparent
+    );
+}
+
+.gate-top {
+  top: 0;
+  height: 72px;
+}
+
+.gate-bottom {
+  bottom: 0;
+  height: 72px;
+}
+
+.gate-core {
+  position: relative;
+
+  width: 54px;
+  height: 54px;
+
+  display: grid;
+
+  place-items: center;
+
+  border:
+    1px solid
+    rgba(0, 0, 0, 0.12);
+
+  border-radius: 50%;
+
+  background:
+    rgba(255, 255, 255, 0.42);
+
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.05);
+
+  animation:
+    gate-breathe 3000ms ease-in-out infinite;
+}
+
+.gate-core span {
+  position: relative;
+
+  z-index: 3;
+
+  color: #7d7d82;
+
+  font-size: 7px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+}
+
+.gate-ring {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  border:
+    1px solid
+    rgba(0, 0, 0, 0.08);
+
+  border-radius: 50%;
+
+  transform:
+    translate(-50%, -50%)
+    scale(0.55);
+
+  opacity: 0;
+
+  animation:
+    gate-ring-in
+    1100ms
+    cubic-bezier(0.22, 1, 0.36, 1)
+    forwards;
+}
+
+.ring-one {
+  width: 65px;
+  height: 65px;
+}
+
+.ring-two {
+  width: 86px;
+  height: 86px;
+
+  animation-delay: 140ms;
+}
+
+/* =========================================================
+   CAUSAL
+   ========================================================= */
+
+.morph-causal {
+  opacity: 0;
+
+  transform:
+    scale(0.9);
+
+  filter: blur(3px);
+}
+
+.morph-intro[data-phase="understand"] .morph-causal {
+  opacity: 1;
+
+  transform:
+    scale(1);
+
+  filter: blur(0);
+}
+
+.morph-intro[data-phase="intervention"] .morph-causal {
+  opacity: 0.18;
+
+  transform:
+    scale(0.83);
+}
+
+.morph-intro[data-phase="resolve"] .morph-causal {
+  opacity: 0;
+}
+
+/* Causal paths */
+
+.morph-causal svg {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: visible;
+}
+
+.causal-path {
+  fill: none;
+
+  stroke:
+    rgba(29, 29, 31, 0.2);
+
+  stroke-width: 1.1;
+
+  stroke-linecap: round;
+
+  stroke-dasharray: 260;
+
+  stroke-dashoffset: 260;
+
+  animation:
+    causal-draw
+    1000ms
+    cubic-bezier(0.22, 1, 0.36, 1)
+    forwards;
+}
+
+.causal-path:nth-child(2) {
+  animation-delay: 150ms;
+}
+
+.causal-path:nth-child(3) {
+  animation-delay: 300ms;
+}
+
+.causal-path:nth-child(4) {
+  animation-delay: 450ms;
+}
+
+.morph-causal svg marker path {
+  fill: rgba(29, 29, 31, 0.26);
+}
+
+.causal-points circle {
+  fill: #ffffff;
+
+  stroke:
+    rgba(29, 29, 31, 0.18);
+
+  stroke-width: 1;
+
+  opacity: 0;
+
+  transform-box: fill-box;
+  transform-origin: center;
+
+  animation:
+    causal-point
+    650ms
+    cubic-bezier(0.22, 1, 0.36, 1)
+    forwards;
+}
+
+.causal-points circle:nth-child(2) {
+  animation-delay: 120ms;
+}
+
+.causal-points circle:nth-child(3) {
+  animation-delay: 240ms;
+}
+
+.causal-points circle:nth-child(4) {
+  animation-delay: 360ms;
+}
+
+.causal-core-ring {
+  fill: none;
+
+  stroke:
+    rgba(0, 0, 0, 0.08);
+
+  stroke-width: 1;
+
+  transform-box: fill-box;
+  transform-origin: center;
+
+  opacity: 0;
+
+  animation:
+    causal-core-ring
+    900ms
+    320ms
+    cubic-bezier(0.22, 1, 0.36, 1)
+    forwards,
+
+    causal-ring-pulse
+    3000ms
+    1200ms
+    ease-in-out
+    infinite;
+}
+
+.causal-core {
+  fill: #1d1d1f;
+
+  opacity: 0;
+
+  transform-box: fill-box;
+  transform-origin: center;
+
+  animation:
+    causal-core
+    800ms
+    330ms
+    cubic-bezier(0.22, 1, 0.36, 1)
+    forwards,
+
+    causal-center-pulse
+    2400ms
+    1200ms
+    ease-in-out
+    infinite;
+}
+
+/* Causal labels */
+
+.causal-label {
+  position: absolute;
+
+  color: #757579;
+
+  font-size: 7px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.11em;
+
+  opacity: 0;
+
+  transition:
+    opacity 600ms 350ms ease;
+}
+
+.morph-intro[data-phase="understand"] .causal-label {
+  opacity: 1;
+}
+
+.causal-left-top {
+  left: 13%;
+  top: 29%;
+}
+
+.causal-left-bottom {
+  left: 13%;
+  bottom: 28%;
+}
+
+.causal-right-top {
+  right: 11%;
+  top: 29%;
+}
+
+.causal-right-bottom {
+  right: 11%;
+  bottom: 28%;
+}
+
+.causal-center-label {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  transform:
+    translate(-50%, -50%);
+
+  color: #9a9a9f;
+
+  font-size: 7px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.11em;
+
+  opacity: 0;
+
+  transition:
+    opacity 600ms 450ms ease;
+}
+
+.morph-intro[data-phase="understand"] .causal-center-label {
+  opacity: 1;
+}
+
+/* =========================================================
+   INTERVENTION
+   ========================================================= */
+
+.morph-intervention {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 22px;
+
+  opacity: 0;
+
+  transform:
+    scale(0.9);
+
+  filter: blur(2px);
+}
+
+.morph-intro[data-phase="intervention"] .morph-intervention {
+  opacity: 1;
+
+  transform:
+    scale(1);
+
+  filter: blur(0);
+}
+
+.morph-intro[data-phase="resolve"] .morph-intervention {
+  opacity: 0;
+
+  transform:
+    scale(0.8);
+}
+
+.intervention-card {
+  width: 245px;
+
+  padding: 23px;
+
+  border:
+    1px solid
+    rgba(0, 0, 0, 0.085);
+
+  border-radius: 15px;
+
+  background:
+    rgba(255, 255, 255, 0.88);
+
+  box-shadow:
+    0 24px 65px rgba(0, 0, 0, 0.055),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.intervention-card span {
+  color: #99999e;
+
+  font-size: 7px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.1em;
+}
+
+.intervention-card strong {
+  display: block;
+
+  margin-top: 13px;
+
+  color: #1d1d1f;
+
+  font-size: 30px;
+
+  line-height: 1;
+
+  font-weight: 650;
+
+  letter-spacing: -0.06em;
+}
+
+.intervention-track {
+  height: 4px;
+
+  margin-top: 20px;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  background:
+    rgba(0, 0, 0, 0.07);
+}
+
+.intervention-track i {
+  display: block;
+
+  height: 100%;
+
+  transform:
+    scaleX(0);
+
+  transform-origin: left center;
+
+  background: #1d1d1f;
+
+  animation:
+    intervention-bar
+    1000ms
+    250ms
+    cubic-bezier(0.22, 1, 0.36, 1)
+    forwards;
+}
+
+.intervention-card:first-child
+.intervention-track i {
+  width: 78%;
+}
+
+.intervention-card:nth-of-type(3)
+.intervention-track i {
+  width: 58%;
+
+  animation-delay: 480ms;
+}
+
+.intervention-arrow {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 5px;
+}
+
+.intervention-arrow span {
+  color: #a0a0a5;
+
+  font-size: 7px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.1em;
+}
+
+.intervention-arrow strong {
+  color: #6b6b70;
+
+  font-size: 22px;
+
+  font-weight: 400;
+
+  animation:
+    intervention-arrow
+    1800ms
+    ease-in-out
+    infinite;
+}
+
+.intervention-outcome {
+  position: absolute;
+
+  left: 50%;
+  bottom: 17px;
+
+  display: flex;
+
+  align-items: baseline;
+
+  gap: 8px;
+
+  padding: 8px 12px;
+
+  border:
+    1px solid
+    rgba(0, 0, 0, 0.07);
+
+  border-radius: 999px;
+
+  background:
+    rgba(250, 250, 252, 0.97);
+
+  box-shadow:
+    0 10px 30px
+    rgba(0, 0, 0, 0.04);
+
+  transform:
+    translateX(-50%);
+}
+
+.intervention-outcome span {
+  color: #99999e;
+
+  font-size: 7px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+}
+
+.intervention-outcome strong {
+  color: #242427;
+
+  font-size: 11px;
+
+  font-weight: 650;
+}
+
+/* =========================================================
+   FINAL LUMEN
+   ========================================================= */
+
+.morph-final {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  opacity: 0;
+
+  transform:
+    scale(0.84);
+
+  filter: blur(3px);
+}
+
+.morph-intro[data-phase="resolve"] .morph-final {
+  opacity: 1;
+
+  transform:
+    scale(1);
+
+  filter: blur(0);
+}
+
+.final-aura {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  border:
+    1px solid
+    rgba(0, 0, 0, 0.065);
+
+  border-radius: 50%;
+
+  transform:
+    translate(-50%, -50%);
+
+  animation:
+    final-aura-pulse
+    3600ms
+    ease-in-out
+    infinite;
+}
+
+.aura-one {
+  width: 150px;
+  height: 150px;
+}
+
+.aura-two {
+  width: 205px;
+  height: 205px;
+
+  animation-delay: -900ms;
+}
+
+.final-logo {
+  position: relative;
+  z-index: 3;
+
+  width: 68px;
+  height: 68px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 19px;
+
+  background: #1d1d1f;
+  color: #ffffff;
+
+  font-size: 29px;
+  font-weight: 700;
+
+  letter-spacing: -0.06em;
+
+  box-shadow:
+    0 26px 80px
+    rgba(0, 0, 0, 0.14);
+
+  animation:
+    final-logo-breathe
+    3200ms
+    ease-in-out
+    infinite;
+}
+
+.final-wordmark {
+  position: relative;
+  z-index: 3;
+
+  margin-top: 17px;
+
+  color: #1d1d1f;
+
+  font-size: 37px;
+
+  line-height: 1;
+
+  font-weight: 650;
+
+  letter-spacing: -0.06em;
+}
+
+.final-divider {
+  position: relative;
+  z-index: 3;
+
+  width: 34px;
+  height: 1px;
+
+  margin-top: 14px;
+
+  background:
+    rgba(0, 0, 0, 0.18);
+}
+
+.morph-final > span {
+  position: relative;
+  z-index: 3;
+
+  margin-top: 11px;
+
+  color: #97979c;
+
+  font-size: 7px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.13em;
+}
+
+/* =========================================================
+   NARRATIVE
+   ========================================================= */
+
+.morph-narrative {
+  position: absolute;
+
+  right: 0;
+  bottom: 78px;
+  left: 0;
+
+  z-index: 400;
+
+  height: 90px;
+
+  pointer-events: none;
+}
+
+.morph-message {
+  position: absolute;
+
+  inset: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  opacity: 0;
+
+  transform:
+    translateY(11px);
+
+  transition:
+    opacity 650ms
+      cubic-bezier(0.22, 1, 0.36, 1),
+
+    transform 750ms
+      cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.morph-message span {
+  color: #99999e;
+
+  font-size: 7px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.13em;
+}
+
+.morph-message strong {
+  margin-top: 9px;
+
+  color: #1d1d1f;
+
+  font-size:
+    clamp(
+      29px,
+      3.7vw,
+      50px
+    );
+
+  line-height: 1;
+
+  font-weight: 650;
+
+  letter-spacing: -0.065em;
+
+  text-align: center;
+}
+
+.morph-intro[data-phase="observe"]
+.message-observe {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.morph-intro[data-phase="protect"]
+.message-protect {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.morph-intro[data-phase="understand"]
+.message-understand {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.morph-intro[data-phase="intervention"]
+.message-intervention {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.morph-intro[data-phase="resolve"]
+.message-resolve {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.morph-bottom {
+  position: absolute;
+
+  right: 34px;
+  bottom: 26px;
+  left: 34px;
+
+  z-index: 400;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+}
+
+.morph-bottom > span {
+  color: #9a9a9f;
+
+  font-size: 7px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.1em;
+}
+
+.morph-progress {
+  width: 180px;
+  height: 2px;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  background:
+    rgba(0, 0, 0, 0.08);
+}
+
+.morph-progress i {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  background: #1d1d1f;
+
+  transform-origin: left center;
+}
+
+/* =========================================================
+   ANIMATION
+   ========================================================= */
+
+@keyframes morph-intro-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes morph-grain {
+  from {
+    transform:
+      translate3d(0, 0, 0);
+  }
+
+  to {
+    transform:
+      translate3d(28px, 18px, 0);
+  }
+}
+
+@keyframes ambient-float {
+  0%,
+  100% {
+    transform:
+      translateY(0);
+    opacity: 0.18;
+  }
+
+  50% {
+    transform:
+      translateY(-7px);
+    opacity: 0.55;
+  }
+}
+
+@keyframes signal-flow {
+  to {
+    stroke-dashoffset: -150;
+  }
+}
+
+@keyframes signal-node-in {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  to {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+}
+
+@keyframes signal-node-pulse {
+  0%,
+  100% {
+    opacity: 0.22;
+  }
+
+  50% {
+    opacity: 0.65;
+  }
+}
+
+@keyframes focus-ring {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.22;
+  }
+
+  50% {
+    transform: scale(1.055);
+    opacity: 0.07;
+  }
+}
+
+@keyframes gate-breathe {
+  0%,
+  100% {
+    box-shadow:
+      0 12px 40px rgba(0, 0, 0, 0.05);
+  }
+
+  50% {
+    box-shadow:
+      0 16px 50px rgba(0, 0, 0, 0.08);
+  }
+}
+
+@keyframes gate-ring-in {
+  from {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      scale(0.45);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      scale(1);
+  }
+}
+
+@keyframes causal-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes causal-point {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes causal-core {
+  from {
+    opacity: 0;
+    transform: scale(0.55);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes causal-core-ring {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes causal-center-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.12);
+  }
+}
+
+@keyframes causal-ring-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.18;
+  }
+
+  50% {
+    transform: scale(1.07);
+    opacity: 0.06;
+  }
+}
+
+@keyframes intervention-bar {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes intervention-arrow {
+  0%,
+  100% {
+    transform: translateX(-2px);
+  }
+
+  50% {
+    transform: translateX(3px);
+  }
+}
+
+@keyframes final-aura-pulse {
+  0%,
+  100% {
+    transform:
+      translate(-50%, -50%)
+      scale(1);
+
+    opacity: 0.12;
+  }
+
+  50% {
+    transform:
+      translate(-50%, -50%)
+      scale(1.07);
+
+    opacity: 0.045;
+  }
+}
+
+@keyframes final-logo-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.018);
+  }
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 760px) {
+  .morph-topbar {
+    top: 20px;
+    right: 18px;
+    left: 18px;
+  }
+
+  .morph-meta {
+    display: none;
+  }
+
+  .morph-stage {
+    top: 37%;
+    width: calc(100% - 14px);
+    height: 410px;
+  }
+
+  .protection-panel {
+    width: 150px;
+    height: 116px;
+    padding: 15px;
+  }
+
+  .protection-panel small {
+    display: none;
+  }
+
+  .protection-gate {
+    width: 45px;
+    height: 175px;
+  }
+
+  .gate-top,
+  .gate-bottom {
+    height: 50px;
+  }
+
+  .causal-label {
+    font-size: 6px;
+  }
+
+  .intervention-system {
+    flex-direction: column;
+
+    gap: 8px;
+  }
+
+  .intervention-card {
+    width: 215px;
+  }
+
+  .intervention-arrow {
+    transform: rotate(90deg);
+  }
+
+  .intervention-outcome {
+    bottom: -6px;
+  }
+
+  .morph-message strong {
+    padding: 0 16px;
+
+    font-size: 29px;
+  }
+
+  .morph-narrative {
+    bottom: 70px;
+  }
+
+  .morph-bottom {
+    right: 18px;
+    bottom: 18px;
+    left: 18px;
+  }
+
+  .morph-progress {
+    width: 110px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .morph-intro *,
+  .morph-intro *::before,
+  .morph-intro *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
